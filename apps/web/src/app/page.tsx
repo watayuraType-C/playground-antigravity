@@ -1,131 +1,82 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { api, Ingredient, RecipeSuggestion as RecipeSuggestionType } from '@/lib/api';
-import { Header } from '@/components/Header';
-import { IngredientCard } from '@/components/IngredientCard';
-import { AddIngredientForm } from '@/components/AddIngredientForm';
-import { RecipeSuggestion } from '@/components/RecipeSuggestion';
-import { ChefHat, RefreshCcw } from 'lucide-react';
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, ChefHat, Sparkles } from "lucide-react";
 
 export default function Home() {
-    const [ingredients, setIngredients] = useState<Ingredient[]>([]);
-    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-    const [suggestion, setSuggestion] = useState<RecipeSuggestionType | null>(null);
-    const [loading, setLoading] = useState(false);
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-8 pb-20 gap-16 sm:p-20 relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/20 rounded-full blur-[100px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[100px]" />
+      </div>
 
-    const fetchIngredients = async () => {
-        try {
-            const data = await api.ingredients.list();
-            setIngredients(data);
-        } catch (error) {
-            console.error('Failed to fetch ingredients', error);
-        }
-    };
-
-    useEffect(() => {
-        fetchIngredients();
-    }, []);
-
-    const toggleSelection = (id: string) => {
-        const newSet = new Set(selectedIds);
-        if (newSet.has(id)) {
-            newSet.delete(id);
-        } else {
-            newSet.add(id);
-        }
-        setSelectedIds(newSet);
-    };
-
-    const handleGetRecipe = async () => {
-        if (selectedIds.size === 0) return;
-        setLoading(true);
-        try {
-            const selectedNames = ingredients
-                .filter(i => selectedIds.has(i.id))
-                .map(i => i.name);
-
-            const result = await api.recipes.suggest(selectedNames);
-            setSuggestion(result);
-        } catch (error) {
-            console.error(error);
-            alert('レシピの取得に失敗しました');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div className="min-h-screen bg-slate-50">
-            <Header />
-
-            <main className="container mx-auto px-4 py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-                    {/* Left Column: Inventory */}
-                    <div className="lg:col-span-5 space-y-6">
-                        <section>
-                            <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                在庫管理
-                                <span className="text-sm font-normal text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full">
-                                    {ingredients.length}
-                                </span>
-                                <button
-                                    onClick={fetchIngredients}
-                                    className="ml-auto p-1.5 text-slate-400 hover:text-primary transition-colors"
-                                >
-                                    <RefreshCcw className="w-4 h-4" />
-                                </button>
-                            </h2>
-
-                            <div className="space-y-4">
-                                <AddIngredientForm onAdded={fetchIngredients} />
-
-                                <div className="grid grid-cols-1 gap-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                                    {ingredients.length === 0 ? (
-                                        <div className="text-center py-8 text-slate-400">
-                                            在庫がありません
-                                        </div>
-                                    ) : (
-                                        ingredients.map(ing => (
-                                            <IngredientCard
-                                                key={ing.id}
-                                                ingredient={ing}
-                                                selected={selectedIds.has(ing.id)}
-                                                onToggle={toggleSelection}
-                                            />
-                                        ))
-                                    )}
-                                </div>
-                            </div>
-                        </section>
-                    </div>
-
-                    {/* Right Column: Recipe Suggestion */}
-                    <div className="lg:col-span-7">
-                        <section className="h-full flex flex-col">
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                                    <ChefHat className="w-5 h-5 text-secondary" />
-                                    シェフの提案
-                                </h2>
-                                <button
-                                    onClick={handleGetRecipe}
-                                    disabled={selectedIds.size === 0 || loading}
-                                    className="bg-secondary hover:bg-orange-600 text-white px-6 py-2 rounded-full font-medium transition-colors shadow-lg shadow-orange-200 disabled:opacity-50 disabled:shadow-none flex items-center gap-2"
-                                >
-                                    {loading ? '考案中...' : `${selectedIds.size}個の食材でレシピを提案`}
-                                </button>
-                            </div>
-
-                            <div className="flex-1 min-h-[500px]">
-                                <RecipeSuggestion suggestion={suggestion} loading={loading} />
-                            </div>
-                        </section>
-                    </div>
-
-                </div>
-            </main>
+      <header className="absolute top-0 w-full p-6 flex justify-between items-center max-w-7xl mx-auto">
+        <div className="flex items-center gap-2 text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-purple-400 to-blue-400">
+          <ChefHat className="w-8 h-8 text-purple-400" />
+          <span>AI Kitchen</span>
         </div>
-    );
+      </header>
+
+      <main className="flex flex-col md:flex-row items-center gap-12 max-w-6xl w-full z-10">
+        {/* Character Section */}
+        <div className="flex-1 relative flex justify-center">
+          <div className="relative w-[300px] h-[300px] md:w-[450px] md:h-[450px]">
+            <div className="absolute inset-0 bg-linear-to-tr from-purple-500/30 to-blue-500/30 rounded-full blur-[40px] animate-pulse" />
+            <Image
+              src="/ai-chef.png"
+              alt="AI Chef Assistant"
+              fill
+              className="object-contain drop-shadow-[0_0_30px_rgba(168,85,247,0.4)]"
+              priority
+            />
+          </div>
+        </div>
+
+        {/* Chat UI Section */}
+        <div className="flex-1 flex flex-col gap-8 w-full max-w-lg">
+          <div className="glass-panel p-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex gap-4 items-start mb-6">
+              <div className="w-10 h-10 rounded-full bg-linear-to-br from-purple-500 to-blue-600 flex items-center justify-center shriink-0">
+                <ChefHat className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <div className="bg-white/10 p-4 rounded-2xl rounded-tl-none text-sm md:text-base leading-relaxed">
+                  <p>
+                    こんにちは！
+                    <span className="inline-block animate-bounce ml-1">👋</span>
+                    <br />
+                    私はあなたの専属AIシェフです。
+                    <br />
+                    冷蔵庫の中身を教えてくれれば、最高に美味しいレシピを提案しますよ！
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <button className="w-full p-4 rounded-xl bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 transition-all text-white font-medium flex items-center justify-between group shadow-lg shadow-purple-900/20 cursor-pointer">
+                <span className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5" />
+                  今ある食材で提案してもらう
+                </span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+
+              <Link href="/inventory/new" className="block">
+                <button className="w-full p-4 rounded-xl border border-white/10 hover:bg-white/5 transition-colors text-gray-300 hover:text-white font-medium text-left cursor-pointer flex items-center justify-between group">
+                  <span>食材を登録する</span>
+                  <ArrowRight className="w-5 h-5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer className="absolute bottom-6 text-center text-sm text-gray-500">
+        <p>© 2026 AI Kitchen Assistant. Powered by Gemini.</p>
+      </footer>
+    </div>
+  );
 }
